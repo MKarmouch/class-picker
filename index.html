@@ -11,6 +11,9 @@
     <script src="./babel.min.js"></script>
     <link href="./tailwind.min.css" rel="stylesheet" />
 
+    <!-- SheetJS for Excel import -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
     <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-auth-compat.js"></script>
@@ -89,11 +92,6 @@
       .divider::before, .divider::after { content: ''; flex: 1; border-bottom: 1px solid #cbd5e1; }
       .divider:not(:empty)::before { margin-right: .5em; }
       .divider:not(:empty)::after { margin-left: .5em; }
-
-      /* --- FOOTER --- */
-      .site-footer { width: 100%; text-align: center; padding: 14px 20px; background: rgba(15, 23, 42, 0.85); color: rgba(226, 232, 240, 0.7); font-size: 13px; }
-      .site-footer a { color: #60a5fa; text-decoration: none; }
-      .site-footer a:hover { text-decoration: underline; }
     </style>
   </head>
   <body>
@@ -443,6 +441,51 @@
           event.target.value = "";
         };
 
+        const handleImportExcel = (event) => {
+          const file = event.target.files?.[0]; if (!file || !currentClass) return;
+          const reader = new FileReader();
+          reader.onload = (loadEvent) => {
+            try {
+              const workbook = XLSX.read(loadEvent.target.result, { type: "array" });
+              const sheet = workbook.Sheets[workbook.SheetNames[0]];
+              const rows = XLSX.utils.sheet_to_json(sheet, { header: 1, defval: "" });
+              // Find the header row by looking for the student name column marker
+              let dataStartRow = -1;
+              let nameColIndex = 3; // default: column D (index 3)
+              for (let i = 0; i < rows.length; i++) {
+                const rowStr = rows[i].join(" ");
+                if (rowStr.includes("إسم التلميذ") || rowStr.includes("اسم التلميذ")) {
+                  dataStartRow = i + 1;
+                  const idx = rows[i].findIndex(cell => String(cell).includes("إسم التلميذ") || String(cell).includes("اسم التلميذ"));
+                  if (idx !== -1) nameColIndex = idx;
+                  break;
+                }
+              }
+              if (dataStartRow === -1) dataStartRow = 16; // fallback: skip first 16 rows
+              const names = dedupeNames(
+                rows.slice(dataStartRow)
+                  .map(row => normalizeName(String(row[nameColIndex] || "")))
+                  .filter(Boolean)
+              );
+              if (!names.length) return setMessage(t("msgNoNamesInFile"));
+              if (importMode === "replace") {
+                updateClassById(currentClass.id, (cls) => ({ ...cls, students: names, remaining: names, history: [] }));
+                setMessage(t("msgListReplaced", { count: names.length }));
+              } else {
+                updateClassById(currentClass.id, (cls) => {
+                  const newNames = names.filter(n => !cls.students.includes(n));
+                  setMessage(newNames.length ? t("msgNamesMerged", { count: newNames.length }) : t("msgAllNamesExist"));
+                  return { ...cls, students: dedupeNames([...cls.students, ...newNames]), remaining: dedupeNames([...cls.remaining, ...newNames]) };
+                });
+              }
+            } catch (err) {
+              setMessage(t("msgNoNamesInFile"));
+            }
+          };
+          reader.readAsArrayBuffer(file);
+          event.target.value = "";
+        };
+
         const handleAddBulkNames = () => {
           if (!currentClass) return; const rawEntries = bulkNames.split(/\n|,/).map(normalizeName).filter(Boolean);
           if (!rawEntries.length) return setMessage(t("msgEnterAtLeastOneName"));
@@ -510,6 +553,8 @@
                   <div className="import-mode"><label><input type="radio" value="replace" checked={importMode==="replace"} onChange={e=>setImportMode(e.target.value)} />{t("importModeReplace")}</label><label><input type="radio" value="merge" checked={importMode==="merge"} onChange={e=>setImportMode(e.target.value)} />{t("importModeMerge")}</label></div>
                   <button className="ghost-btn" onClick={()=>document.getElementById("csv-input").click()}>{t("uploadCsvButton")}</button>
                   <input id="csv-input" type="file" accept=".csv" style={{display:"none"}} onChange={handleImportCSV} />
+                  <button className="ghost-btn" onClick={()=>document.getElementById("excel-input").click()}>{language === "ar" ? "رفع ملف Excel (نقط المراقبة)" : "Upload Excel (Grade Sheet)"}</button>
+                  <input id="excel-input" type="file" accept=".xlsx,.xls" style={{display:"none"}} onChange={handleImportExcel} />
                   <button className="ghost-btn" onClick={handleResetPool}>{t("resetNoRepeatButton")}</button>
                 </div>
                 <div className="manual-card"><h2>{t("manualSectionTitle")}</h2><textarea placeholder={t("manualPlaceholder")} value={bulkNames} onChange={e=>setBulkNames(e.target.value)} /><button className="ghost-btn" onClick={handleAddBulkNames}>{t("addNamesButton")}</button></div>
@@ -531,8 +576,5 @@
       }
       ReactDOM.render(<App />, document.getElementById("artifact_react"));
     </script>
-    <footer class="site-footer">
-  Developed by <a href="https://www.karmouch.me" target="_blank" rel="noopener noreferrer">Mehdi Karmouch</a>
-</footer>
   </body>
 </html>
