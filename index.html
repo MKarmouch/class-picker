@@ -5,49 +5,29 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Class Picker Tool</title>
     
-    <!-- React & Tailwind -->
+    <!-- React & Tailwind (Make sure these files are in your GitHub repo folder!) -->
     <script src="./react.production.min.js"></script>
     <script src="./react-dom.production.min.js"></script>
     <script src="./babel.min.js"></script>
     <link href="./tailwind.min.css" rel="stylesheet" />
 
-    <!-- Firebase SDKs (Compat version for easy script usage) -->
+    <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-firestore-compat.js"></script>
 
     <style>
-      /* --- ALL YOUR ORIGINAL CSS --- */
+      /* --- ORIGINAL CSS --- */
       * { box-sizing: border-box; }
-      body {
-        margin: 0;
-        font-family: "Segoe UI", "Noto Sans Arabic", sans-serif;
-        background: radial-gradient(circle at top, #eef2ff, #dbeafe 35%, #c7d2fe);
-        color: #1f2937;
-      }
+      body { margin: 0; font-family: "Segoe UI", "Noto Sans Arabic", sans-serif; background: radial-gradient(circle at top, #eef2ff, #dbeafe 35%, #c7d2fe); color: #1f2937; }
       .app-shell { display: flex; min-height: 100vh; width: 100%; backdrop-filter: blur(6px); }
-      .sidebar {
-        width: 320px; max-width: 100%; background: rgba(15, 23, 42, 0.92); color: #e2e8f0;
-        padding: 24px; display: flex; flex-direction: column; gap: 24px; box-shadow: 6px 0 18px rgba(15, 23, 42, 0.3);
-      }
+      .sidebar { width: 320px; max-width: 100%; background: rgba(15, 23, 42, 0.92); color: #e2e8f0; padding: 24px; display: flex; flex-direction: column; gap: 24px; box-shadow: 6px 0 18px rgba(15, 23, 42, 0.3); }
       .sidebar h1 { margin: 0; font-size: 24px; font-weight: 700; display: flex; align-items: center; gap: 10px; }
-      .sidebar h1 span {
-        display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px;
-        border-radius: 10px; background: linear-gradient(135deg, #60a5fa, #c084fc); color: white; font-weight: 800;
-      }
-      .language-toggle, .add-class-card, .import-card, .manual-card {
-        background: rgba(30, 41, 59, 0.72); border-radius: 18px; padding: 18px;
-        box-shadow: inset 0 0 0 1px rgba(148, 163, 184, 0.12); display: flex; flex-direction: column; gap: 12px;
-      }
+      .sidebar h1 span { display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 10px; background: linear-gradient(135deg, #60a5fa, #c084fc); color: white; font-weight: 800; }
+      .language-toggle, .add-class-card, .import-card, .manual-card { background: rgba(30, 41, 59, 0.72); border-radius: 18px; padding: 18px; box-shadow: inset 0 0 0 1px rgba(148, 163, 184, 0.12); display: flex; flex-direction: column; gap: 12px; }
       .language-toggle label, .add-class-card label, .manual-card h2, .import-card h2 { font-weight: 600; font-size: 15px; }
-      .language-toggle select, .add-class-card input, .manual-card textarea {
-        width: 100%; border-radius: 12px; border: 1px solid rgba(148, 163, 184, 0.35); padding: 10px 12px;
-        background: rgba(15, 23, 42, 0.55); color: inherit; font-size: 15px;
-      }
-      .add-class-card button, .import-card button, .manual-card button, .controls button, .history button, .student-list button {
-        border: none; border-radius: 12px; padding: 10px 14px; font-size: 15px; font-weight: 600;
-        cursor: pointer; transition: transform 0.15s ease, box-shadow 0.15s ease;
-      }
+      .language-toggle select, .add-class-card input, .manual-card textarea { width: 100%; border-radius: 12px; border: 1px solid rgba(148, 163, 184, 0.35); padding: 10px 12px; background: rgba(15, 23, 42, 0.55); color: inherit; font-size: 15px; }
+      .add-class-card button, .import-card button, .manual-card button, .controls button, .history button, .student-list button { border: none; border-radius: 12px; padding: 10px 14px; font-size: 15px; font-weight: 600; cursor: pointer; transition: transform 0.15s ease, box-shadow 0.15s ease; }
       .primary-btn { background: linear-gradient(135deg, #2563eb, #7c3aed); color: white; box-shadow: 0 10px 22px rgba(37, 99, 235, 0.28); }
       .primary-btn:disabled { opacity: 0.6; cursor: not-allowed; box-shadow: none; transform: none; }
       .ghost-btn { background: rgba(148, 163, 184, 0.14); color: inherit; }
@@ -91,19 +71,11 @@
       @media (max-width: 1080px) { .app-shell { flex-direction: column; } .sidebar { width: 100%; border-bottom-left-radius: 32px; border-bottom-right-radius: 32px; box-shadow: 0 18px 36px rgba(15, 23, 42, 0.25); } }
       @media (max-width: 680px) { .main { padding: 24px; } .controls { grid-template-columns: 1fr; } .student-name { min-width: 85%; } }
 
-      /* --- NEW CSS FOR LOGIN SCREEN --- */
-      .auth-container {
-        display: flex; align-items: center; justify-content: center; min-height: 100vh; width: 100%;
-      }
-      .auth-card {
-        background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(10px);
-        border-radius: 24px; padding: 40px; box-shadow: 0 20px 40px rgba(15, 23, 42, 0.15);
-        width: 100%; max-width: 400px; display: flex; flex-direction: column; gap: 20px;
-      }
+      /* --- AUTHENTICATION STYLING --- */
+      .auth-container { display: flex; align-items: center; justify-content: center; min-height: 100vh; width: 100%; }
+      .auth-card { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(10px); border-radius: 24px; padding: 40px; box-shadow: 0 20px 40px rgba(15, 23, 42, 0.15); width: 100%; max-width: 400px; display: flex; flex-direction: column; gap: 20px; }
       .auth-card h2 { margin: 0; text-align: center; font-size: 24px; color: #1e293b; }
-      .auth-card input {
-        width: 100%; border-radius: 12px; border: 1px solid rgba(148, 163, 184, 0.45); padding: 12px; font-size: 15px;
-      }
+      .auth-card input { width: 100%; border-radius: 12px; border: 1px solid rgba(148, 163, 184, 0.45); padding: 12px; font-size: 15px; }
       .auth-card .error { color: #ef4444; font-size: 14px; text-align: center; background: #fee2e2; padding: 10px; border-radius: 8px;}
       .auth-card .btn-group { display: flex; gap: 10px; }
       .auth-card .btn-group button { flex: 1; padding: 12px; border: none; border-radius: 12px; font-weight: 600; cursor: pointer; transition: 0.2s;}
@@ -111,6 +83,12 @@
       .auth-card .btn-login:hover { background: #1d4ed8; }
       .auth-card .btn-signup { background: #e2e8f0; color: #1e293b; }
       .auth-card .btn-signup:hover { background: #cbd5e1; }
+      .btn-google { display: flex; align-items: center; justify-content: center; gap: 10px; background: white; border: 1px solid #cbd5e1 !important; color: #334155 !important; margin-top: 10px; width: 100%; padding: 12px; border-radius: 12px; font-weight: 600; cursor: pointer; transition: 0.2s; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+      .btn-google:hover { background: #f8fafc; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+      .divider { display: flex; align-items: center; text-align: center; color: #94a3b8; font-size: 14px; margin: 5px 0; }
+      .divider::before, .divider::after { content: ''; flex: 1; border-bottom: 1px solid #cbd5e1; }
+      .divider:not(:empty)::before { margin-right: .5em; }
+      .divider:not(:empty)::after { margin-left: .5em; }
     </style>
   </head>
   <body>
@@ -120,7 +98,7 @@
       const { useState, useEffect, useMemo } = React;
 
       // ==========================================
-      // 1. PUT YOUR FIREBASE CONFIGURATION HERE
+      // 1. RE-PASTE YOUR CONFIGURATION HERE!
       // ==========================================
       const firebaseConfig = {
         apiKey: "AIzaSyCtdKb8hxDONsRpJUvgdUMrQ4xhuyyPROs",
@@ -131,17 +109,14 @@
         appId: "1:260862861728:web:0523283bfe65acfe8e04c5"
       };
 
-      // Initialize Firebase
-      if (!firebase.apps.length) {
-        firebase.initializeApp(firebaseConfig);
-      }
+      if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
       const auth = firebase.auth();
       const db = firebase.firestore();
+      const googleProvider = new firebase.auth.GoogleAuthProvider();
 
       const HISTORY_LIMIT = 25;
       const LOCALE_MAP = { ar: "ar-SA", en: "en-US" };
 
-      // Added Authentication translation keys
       const TEXT = {
         ar: {
           appTitle: "أداة اختيار الطلاب",
@@ -207,12 +182,13 @@
           renamePrompt: "اكتب اسمًا جديدًا للفصل:",
           msgRenameDone: "تم تغيير اسم الفصل إلى {name}.",
           msgAllStudentsDrawnReset: "تم اختيار جميع الطلاب. استخدم إعادة الضبط لبدء دورة جديدة.",
-          
           authTitle: "تسجيل الدخول",
           authEmail: "البريد الإلكتروني",
           authPassword: "كلمة المرور",
-          authLoginBtn: "دخول",
+          authLoginBtn: "دخول بالبريد",
           authSignupBtn: "حساب جديد",
+          authGoogleBtn: "تسجيل الدخول باستخدام جوجل",
+          authOr: "أو",
           authSignout: "تسجيل الخروج",
         },
         en: {
@@ -279,12 +255,13 @@
           renamePrompt: "Enter a new name for the class:",
           msgRenameDone: "Class renamed to {name}.",
           msgAllStudentsDrawnReset: "All students have been drawn. Use reset to start a new round.",
-          
-          authTitle: "Sign In to Teacher Picker",
+          authTitle: "Sign In",
           authEmail: "Email Address",
           authPassword: "Password",
-          authLoginBtn: "Login",
+          authLoginBtn: "Login with Email",
           authSignupBtn: "Create Account",
+          authGoogleBtn: "Continue with Google",
+          authOr: "OR",
           authSignout: "Sign Out",
         },
       };
@@ -293,14 +270,10 @@
         const dictionary = TEXT[lang] || TEXT.ar;
         const fallback = TEXT.ar[key] || key;
         let template = dictionary[key] || fallback;
-        return Object.keys(params).reduce(
-          (acc, paramKey) => acc.replace(new RegExp(`\\{${paramKey}\\}`, "g"), params[paramKey]),
-          template
-        );
+        return Object.keys(params).reduce((acc, paramKey) => acc.replace(new RegExp(`\\{${paramKey}\\}`, "g"), params[paramKey]), template);
       };
 
-      const generateId = (prefix = "id") =>
-        `${prefix}-${Date.now().toString(36)}-${Math.random().toString(16).slice(2, 8)}`;
+      const generateId = (prefix = "id") => `${prefix}-${Date.now().toString(36)}-${Math.random().toString(16).slice(2, 8)}`;
       const normalizeName = (name) => name.replace(/\ufeff/g, "").replace(/\r/g, "").trim();
       const dedupeNames = (names) => {
         const seen = new Set();
@@ -323,44 +296,30 @@
         return date.toLocaleString(locale, options);
       };
 
-      // ==========================================
-      // AUTHENTICATION SCREEN COMPONENT
-      // ==========================================
       function AuthScreen({ language, setLanguage }) {
         const [email, setEmail] = useState("");
         const [password, setPassword] = useState("");
         const [error, setError] = useState("");
         const t = (key) => translate(language, key);
-
-        const handleLogin = (e) => {
-          e.preventDefault();
-          auth.signInWithEmailAndPassword(email, password).catch(err => setError(err.message));
-        };
-
-        const handleSignup = (e) => {
-          e.preventDefault();
-          auth.createUserWithEmailAndPassword(email, password).catch(err => setError(err.message));
-        };
+        const handleLogin = (e) => { e.preventDefault(); auth.signInWithEmailAndPassword(email, password).catch(err => setError(err.message)); };
+        const handleSignup = (e) => { e.preventDefault(); auth.createUserWithEmailAndPassword(email, password).catch(err => setError(err.message)); };
+        const handleGoogleLogin = () => { auth.signInWithPopup(googleProvider).catch(err => setError(err.message)); };
 
         return (
           <div className="auth-container" dir={language === "ar" ? "rtl" : "ltr"}>
             <div className="auth-card">
               <h2>{t("authTitle")}</h2>
-              
-              <select 
-                style={{ padding: '8px', borderRadius: '8px', border: '1px solid #ccc', marginBottom: '10px' }}
-                value={language} 
-                onChange={(e) => setLanguage(e.target.value)}
-              >
-                <option value="ar">العربية</option>
-                <option value="en">English</option>
+              <select style={{ padding: '8px', borderRadius: '8px', border: '1px solid #ccc', marginBottom: '10px' }} value={language} onChange={(e) => setLanguage(e.target.value)}>
+                <option value="ar">العربية</option><option value="en">English</option>
               </select>
-
               {error && <div className="error">{error}</div>}
-              
+              <button className="btn-google" onClick={handleGoogleLogin}>
+                <svg width="18" height="18" viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
+                {t("authGoogleBtn")}
+              </button>
+              <div className="divider">{t("authOr")}</div>
               <input type="email" placeholder={t("authEmail")} value={email} onChange={e => setEmail(e.target.value)} />
               <input type="password" placeholder={t("authPassword")} value={password} onChange={e => setPassword(e.target.value)} />
-              
               <div className="btn-group">
                 <button className="btn-login" onClick={handleLogin}>{t("authLoginBtn")}</button>
                 <button className="btn-signup" onClick={handleSignup}>{t("authSignupBtn")}</button>
@@ -370,18 +329,13 @@
         );
       }
 
-      // ==========================================
-      // MAIN APP COMPONENT
-      // ==========================================
       function App() {
         const [user, setUser] = useState(null);
         const [authLoading, setAuthLoading] = useState(true);
         const [dataLoaded, setDataLoaded] = useState(false);
-
         const [language, setLanguage] = useState("ar");
         const [classes, setClasses] = useState([]);
         const [selectedClassId, setSelectedClassId] = useState(null);
-        
         const [newClassName, setNewClassName] = useState("");
         const [importMode, setImportMode] = useState("replace");
         const [allowRepeats, setAllowRepeats] = useState(false);
@@ -396,99 +350,58 @@
 
         const t = (key, params) => translate(language, key, params);
 
-        // 1. Listen for Firebase User Logins/Logouts
         useEffect(() => {
           const unsubscribe = auth.onAuthStateChanged((currentUser) => {
             setUser(currentUser);
-            if (!currentUser) {
-              setClasses([]);
-              setSelectedClassId(null);
-              setDataLoaded(false);
-            }
+            if (!currentUser) { setClasses([]); setSelectedClassId(null); setDataLoaded(false); }
             setAuthLoading(false);
           });
           return () => unsubscribe();
         }, []);
 
-        // 2. Load Data from Firestore when user logs in
         useEffect(() => {
           if (!user) return;
-          const loadData = async () => {
-            try {
-              const docSnap = await db.collection("users").doc(user.uid).get();
-              if (docSnap.exists) {
-                const data = docSnap.data();
-                setClasses(data.classes || []);
-                setSelectedClassId(data.selectedClassId || null);
-                setLanguage(data.language || "ar");
-                setRtlDisplay(data.language !== "en");
-              }
-            } catch (error) {
-              console.error("Error loading data:", error);
+          db.collection("users").doc(user.uid).get().then(doc => {
+            if (doc.exists) {
+              const data = doc.data();
+              setClasses(data.classes || []);
+              setSelectedClassId(data.selectedClassId || null);
+              setLanguage(data.language || "ar");
+              setRtlDisplay(data.language !== "en");
             }
             setDataLoaded(true);
-          };
-          loadData();
+          });
         }, [user]);
 
-        // 3. Save Data to Firestore whenever classes, language, or selectedClass changes
         useEffect(() => {
           if (user && dataLoaded) {
-            db.collection("users").doc(user.uid).set({
-              classes,
-              selectedClassId,
-              language
-            }).catch(err => console.error("Error saving data:", err));
+            db.collection("users").doc(user.uid).set({ classes, selectedClassId, language });
           }
         }, [classes, selectedClassId, language, user, dataLoaded]);
 
-        // Clear messages
         useEffect(() => {
           if (!message) return;
           const timer = setTimeout(() => setMessage(""), 4500);
           return () => clearTimeout(timer);
         }, [message]);
 
-        // Auto-select class
         useEffect(() => {
-          if (classes.length === 0) {
-            if (selectedClassId !== null) setSelectedClassId(null);
-            return;
-          }
-          if (!classes.some((cls) => cls.id === selectedClassId)) {
-            setSelectedClassId(classes[0].id);
-          }
+          if (classes.length === 0) { if (selectedClassId !== null) setSelectedClassId(null); return; }
+          if (!classes.some(cls => cls.id === selectedClassId)) setSelectedClassId(classes[0].id);
         }, [classes, selectedClassId]);
 
-        const currentClass = useMemo(
-          () => classes.find((cls) => cls.id === selectedClassId) || null,
-          [classes, selectedClassId]
-        );
+        const currentClass = useMemo(() => classes.find(cls => cls.id === selectedClassId) || null, [classes, selectedClassId]);
 
-        // Auth loading screen
         if (authLoading) return <div style={{textAlign: 'center', padding: '50px'}}>Loading...</div>;
-        
-        // Show login screen if not logged in
         if (!user) return <AuthScreen language={language} setLanguage={setLanguage} />;
 
         const handleSignOut = () => auth.signOut();
 
         const pickRandomNames = (source, count, repeat) => {
-          if (!Array.isArray(source) || source.length === 0) return [];
+          if (!source || source.length === 0) return [];
           const picks = [];
-          if (repeat) {
-            for (let i = 0; i < count; i += 1) {
-              const idx = Math.floor(Math.random() * source.length);
-              picks.push(source[idx]);
-            }
-          } else {
-            const pool = [...source];
-            for (let i = 0; i < count && pool.length > 0; i += 1) {
-              const idx = Math.floor(Math.random() * pool.length);
-              picks.push(pool[idx]);
-              pool.splice(idx, 1);
-            }
-          }
+          if (repeat) { for (let i = 0; i < count; i++) picks.push(source[Math.floor(Math.random() * source.length)]); }
+          else { const pool = [...source]; for (let i = 0; i < count && pool.length > 0; i++) { const idx = Math.floor(Math.random() * pool.length); picks.push(pool[idx]); pool.splice(idx, 1); } }
           return picks;
         };
 
@@ -496,294 +409,122 @@
           const name = normalizeName(newClassName);
           if (!name) return setMessage(t("msgEnterClassName"));
           const newClass = { id: generateId("cls"), name, students: [], remaining: [], history: [] };
-          setClasses((prev) => [...prev, newClass]);
+          setClasses(prev => [...prev, newClass]);
           setSelectedClassId(newClass.id);
           setNewClassName("");
           setMessage(t("msgClassCreated", { name }));
         };
 
         const deleteClass = (id) => {
-          const target = classes.find((cls) => cls.id === id);
-          if (!target) return;
-          if (!window.confirm(t("msgConfirmDelete", { name: target.name }))) return;
-          setClasses((prev) => prev.filter((cls) => cls.id !== id));
+          const target = classes.find(cls => cls.id === id);
+          if (!target || !window.confirm(t("msgConfirmDelete", { name: target.name }))) return;
+          setClasses(prev => prev.filter(cls => cls.id !== id));
           setUndoStack([]);
           setMessage(t("msgClassDeleted", { name: target.name }));
         };
 
-        const updateClassById = (classId, updater) => {
-          setClasses((prev) => prev.map((cls) => (cls.id === classId ? updater(cls) : cls)));
-        };
+        const updateClassById = (classId, updater) => setClasses(prev => prev.map(cls => cls.id === classId ? updater(cls) : cls));
 
         const handleImportCSV = (event) => {
-          const file = event.target.files?.[0];
-          if (!file || !currentClass) return;
+          const file = event.target.files?.[0]; if (!file || !currentClass) return;
           const reader = new FileReader();
           reader.onload = (loadEvent) => {
-            const text = loadEvent.target.result;
-            const names = dedupeNames(parseCSV(text));
+            const names = dedupeNames(parseCSV(loadEvent.target.result));
             if (!names.length) return setMessage(t("msgNoNamesInFile"));
-            if (importMode === "replace") {
-              updateClassById(currentClass.id, (cls) => ({ ...cls, students: names, remaining: names, history: [] }));
-              setMessage(t("msgListReplaced", { count: names.length }));
-            } else {
-              updateClassById(currentClass.id, (cls) => {
-                const newNames = names.filter((name) => !cls.students.includes(name));
-                setMessage(newNames.length ? t("msgNamesMerged", { count: newNames.length }) : t("msgAllNamesExist"));
-                return {
-                  ...cls,
-                  students: dedupeNames([...cls.students, ...newNames]),
-                  remaining: dedupeNames([...cls.remaining, ...newNames]),
-                };
-              });
-            }
+            if (importMode === "replace") { updateClassById(currentClass.id, (cls) => ({ ...cls, students: names, remaining: names, history: [] })); setMessage(t("msgListReplaced", { count: names.length })); }
+            else { updateClassById(currentClass.id, (cls) => { const newNames = names.filter(n => !cls.students.includes(n)); setMessage(newNames.length ? t("msgNamesMerged", { count: newNames.length }) : t("msgAllNamesExist")); return { ...cls, students: dedupeNames([...cls.students, ...newNames]), remaining: dedupeNames([...cls.remaining, ...newNames]) }; }); }
           };
           reader.readAsText(file, "utf-8");
           event.target.value = "";
         };
 
         const handleAddBulkNames = () => {
-          if (!currentClass) return;
-          const rawEntries = bulkNames.split(/\n|,/).map(normalizeName).filter(Boolean);
+          if (!currentClass) return; const rawEntries = bulkNames.split(/\n|,/).map(normalizeName).filter(Boolean);
           if (!rawEntries.length) return setMessage(t("msgEnterAtLeastOneName"));
-          const uniqueNew = rawEntries.filter((name) => !currentClass.students.includes(name));
+          const uniqueNew = rawEntries.filter(n => !currentClass.students.includes(n));
           if (!uniqueNew.length) return setMessage(t("msgAllNamesExist"));
-          updateClassById(currentClass.id, (cls) => ({
-            ...cls, students: dedupeNames([...cls.students, ...uniqueNew]), remaining: dedupeNames([...cls.remaining, ...uniqueNew]),
-          }));
-          setBulkNames("");
-          setMessage(t("msgAddedNames", { count: uniqueNew.length }));
+          updateClassById(currentClass.id, cls => ({ ...cls, students: dedupeNames([...cls.students, ...uniqueNew]), remaining: dedupeNames([...cls.remaining, ...uniqueNew]) }));
+          setBulkNames(""); setMessage(t("msgAddedNames", { count: uniqueNew.length }));
         };
 
-        const handleResetPool = () => {
-          if (!currentClass) return;
-          updateClassById(currentClass.id, (cls) => ({ ...cls, remaining: [...cls.students] }));
-          setMessage(t("msgResetPool"));
-        };
+        const handleResetPool = () => { if (currentClass) updateClassById(currentClass.id, cls => ({ ...cls, remaining: [...cls.students] })); setMessage(t("msgResetPool")); };
 
         const handleSelection = () => {
           if (!currentClass) return setMessage(t("msgCreateClassFirst"));
           const pool = allowRepeats ? currentClass.students : currentClass.remaining;
           if (!pool.length) return setMessage(allowRepeats ? t("msgClassHasNoNames") : t("msgAllStudentsDrawn"));
-          if (!allowRepeats && selectionCount > pool.length) {
-            return setMessage(t("msgCannotSelectCount", { requested: selectionCount, available: pool.length }));
-          }
-          setIsSelecting(true);
-          setMessage("");
-          const frameRate = 90;
-          const interval = setInterval(() => {
-            setDisplayNames(pickRandomNames(pool, Math.min(selectionCount, pool.length), true));
-            setShuffleNumber(Math.floor(Math.random() * 900) + 100);
-          }, frameRate);
+          if (!allowRepeats && selectionCount > pool.length) return setMessage(t("msgCannotSelectCount", { requested: selectionCount, available: pool.length }));
+          setIsSelecting(true); setMessage("");
+          const interval = setInterval(() => { setDisplayNames(pickRandomNames(pool, Math.min(selectionCount, pool.length), true)); setShuffleNumber(Math.floor(Math.random() * 900) + 100); }, 90);
           setTimeout(() => {
             clearInterval(interval);
             const finalNames = pickRandomNames(pool, Math.min(selectionCount, pool.length), allowRepeats);
-            setDisplayNames(finalNames);
-            setShuffleNumber(null);
-            setIsSelecting(false);
+            setDisplayNames(finalNames); setShuffleNumber(null); setIsSelecting(false);
             const historyEntry = { id: generateId("draw"), names: finalNames, recordedAt: new Date().toISOString(), selectionCount, allowRepeats };
-            updateClassById(currentClass.id, (cls) => {
-              return {
-                ...cls,
-                history: [historyEntry, ...cls.history].slice(0, HISTORY_LIMIT),
-                remaining: allowRepeats ? cls.remaining : cls.remaining.filter((name) => !finalNames.includes(name)),
-              };
-            });
-            setUndoStack((prev) => [...prev, { classId: currentClass.id, names: finalNames, entryId: historyEntry.id, allowRepeats }]);
+            updateClassById(currentClass.id, cls => ({ ...cls, history: [historyEntry, ...cls.history].slice(0, HISTORY_LIMIT), remaining: allowRepeats ? cls.remaining : cls.remaining.filter(n => !finalNames.includes(n)) }));
+            setUndoStack(prev => [...prev, { classId: currentClass.id, names: finalNames, entryId: historyEntry.id, allowRepeats }]);
             if (!allowRepeats && (pool.length - finalNames.length === 0)) setMessage(t("msgAllStudentsDrawnReset"));
           }, 2000);
         };
 
         const handleUndo = () => {
           if (!undoStack.length) return setMessage(t("msgUndoNotAvailable"));
-          const lastEntry = undoStack[undoStack.length - 1];
-          setUndoStack((prev) => prev.slice(0, prev.length - 1));
-          setClasses((prev) => prev.map((cls) => {
-            if (cls.id !== lastEntry.classId) return cls;
-            return {
-              ...cls,
-              history: cls.history.filter((item) => item.id !== lastEntry.entryId),
-              remaining: lastEntry.allowRepeats ? cls.remaining : dedupeNames([...cls.remaining, ...lastEntry.names]),
-            };
-          }));
-          setSelectedClassId(lastEntry.classId);
-          setDisplayNames(lastEntry.names);
-          setMessage(t("msgUndoDone"));
+          const lastEntry = undoStack[undoStack.length - 1]; setUndoStack(prev => prev.slice(0, -1));
+          setClasses(prev => prev.map(cls => cls.id === lastEntry.classId ? { ...cls, history: cls.history.filter(i => i.id !== lastEntry.entryId), remaining: lastEntry.allowRepeats ? cls.remaining : dedupeNames([...cls.remaining, ...lastEntry.names]) } : cls));
+          setSelectedClassId(lastEntry.classId); setDisplayNames(lastEntry.names); setMessage(t("msgUndoDone"));
         };
-
-        const clearHistory = () => {
-          if (!currentClass) return;
-          updateClassById(currentClass.id, (cls) => ({ ...cls, history: [] }));
-          setMessage(t("msgHistoryCleared"));
-        };
-
-        const renameClass = (cls) => {
-          const proposed = window.prompt(t("renamePrompt"), cls.name);
-          const name = normalizeName(proposed || "");
-          if (!name || name === cls.name) return;
-          updateClassById(cls.id, (item) => ({ ...item, name }));
-          setMessage(t("msgRenameDone", { name }));
-        };
-
-        const canUndo = undoStack.length > 0;
-        const messageDirection = language === "ar" ? "rtl" : "ltr";
 
         return (
           <div className="app-shell">
             <aside className="sidebar" dir={language === "ar" ? "rtl" : "ltr"}>
-              <h1>
-                <span>★</span>
-                {t("appTitle")}
-              </h1>
-
+              <h1><span>★</span>{t("appTitle")}</h1>
               <div className="language-toggle">
-                <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
-                  <label htmlFor="language-select">{t("languageLabel")}</label>
-                  <button onClick={handleSignOut} className="danger-btn" style={{padding: '4px 8px', fontSize: '12px'}}>{t("authSignout")}</button>
+                <div style={{display:'flex', justifyContent:'space-between', alignItems:'center'}}>
+                  <label>{t("languageLabel")}</label>
+                  <button onClick={handleSignOut} className="danger-btn" style={{padding:'4px 8px', fontSize:'12px'}}>{t("authSignout")}</button>
                 </div>
-                <select id="language-select" value={language} onChange={(e) => setLanguage(e.target.value)}>
-                  <option value="ar">{t("languageArabic")}</option>
-                  <option value="en">{t("languageEnglish")}</option>
-                </select>
+                <select value={language} onChange={(e) => setLanguage(e.target.value)}><option value="ar">العربية</option><option value="en">English</option></select>
               </div>
-
               <div className="add-class-card">
-                <label htmlFor="new-class">{t("classNameLabel")}</label>
-                <input id="new-class" placeholder={t("newClassPlaceholder")} value={newClassName} onChange={(e) => setNewClassName(e.target.value)} />
+                <label>{t("classNameLabel")}</label>
+                <input placeholder={t("newClassPlaceholder")} value={newClassName} onChange={e => setNewClassName(e.target.value)} />
                 <button className="primary-btn" onClick={addClass}>{t("addClassButton")}</button>
               </div>
-
               <section className="class-list">
                 {classes.length === 0 && <p className="empty-state">{t("noClassesPlaceholder")}</p>}
-                {classes.map((cls) => (
+                {classes.map(cls => (
                   <article key={cls.id} className={`class-card ${cls.id === selectedClassId ? "active" : ""}`}>
-                    <header>
-                      <h3>{cls.name}</h3>
-                      <div className="control-row" style={{ gap: "6px" }}>
-                        <button className="ghost-btn" onClick={() => setSelectedClassId(cls.id)}>{t("selectButton")}</button>
-                        <button className="ghost-btn" onClick={() => renameClass(cls)}>{t("renameButton")}</button>
-                        <button className="danger-btn" onClick={() => deleteClass(cls.id)}>{t("deleteButton")}</button>
-                      </div>
-                    </header>
-                    <div className="class-meta">
-                      <span>{t("studentsLabel")}: {cls.students.length}</span>
-                      <span>{t("remainingLabel")}: {cls.remaining.length}{!allowRepeats && cls.remaining.length === 0 ? " ✓" : ""}</span>
-                    </div>
+                    <header><h3>{cls.name}</h3><div className="control-row" style={{gap:"6px"}}><button className="ghost-btn" onClick={() => setSelectedClassId(cls.id)}>{t("selectButton")}</button><button className="danger-btn" onClick={() => deleteClass(cls.id)}>{t("deleteButton")}</button></div></header>
+                    <div className="class-meta"><span>{t("studentsLabel")}: {cls.students.length}</span><span>{t("remainingLabel")}: {cls.remaining.length}</span></div>
                   </article>
                 ))}
               </section>
-
-              {currentClass && (
-                <>
-                  <div className="import-card">
-                    <h2 style={{ margin: 0, fontSize: "17px" }}>{t("importSectionTitle")}</h2>
-                    <div className="import-mode">
-                      <label><input type="radio" value="replace" checked={importMode === "replace"} onChange={(e) => setImportMode(e.target.value)} />{t("importModeReplace")}</label>
-                      <label><input type="radio" value="merge" checked={importMode === "merge"} onChange={(e) => setImportMode(e.target.value)} />{t("importModeMerge")}</label>
-                    </div>
-                    <button className="ghost-btn" onClick={() => document.getElementById("csv-input").click()}>{t("uploadCsvButton")}</button>
-                    <input id="csv-input" type="file" accept=".csv" style={{ display: "none" }} onChange={handleImportCSV} />
-                    <button className="ghost-btn" onClick={handleResetPool}>{t("resetNoRepeatButton")}</button>
-                  </div>
-
-                  <div className="manual-card">
-                    <h2 style={{ margin: 0, fontSize: "17px" }}>{t("manualSectionTitle")}</h2>
-                    <textarea placeholder={t("manualPlaceholder")} value={bulkNames} onChange={(e) => setBulkNames(e.target.value)} />
-                    <button className="ghost-btn" onClick={handleAddBulkNames}>{t("addNamesButton")}</button>
-                  </div>
-                </>
-              )}
+              {currentClass && <>
+                <div className="import-card">
+                  <h2>{t("importSectionTitle")}</h2>
+                  <div className="import-mode"><label><input type="radio" value="replace" checked={importMode==="replace"} onChange={e=>setImportMode(e.target.value)} />{t("importModeReplace")}</label><label><input type="radio" value="merge" checked={importMode==="merge"} onChange={e=>setImportMode(e.target.value)} />{t("importModeMerge")}</label></div>
+                  <button className="ghost-btn" onClick={()=>document.getElementById("csv-input").click()}>{t("uploadCsvButton")}</button>
+                  <input id="csv-input" type="file" accept=".csv" style={{display:"none"}} onChange={handleImportCSV} />
+                  <button className="ghost-btn" onClick={handleResetPool}>{t("resetNoRepeatButton")}</button>
+                </div>
+                <div className="manual-card"><h2>{t("manualSectionTitle")}</h2><textarea placeholder={t("manualPlaceholder")} value={bulkNames} onChange={e=>setBulkNames(e.target.value)} /><button className="ghost-btn" onClick={handleAddBulkNames}>{t("addNamesButton")}</button></div>
+              </>}
             </aside>
-
             <main className="main" dir={language === "ar" ? "rtl" : "ltr"}>
               <section className="controls">
-                <div className="control-group">
-                  <label>{t("selectionCountLabel")}</label>
-                  <div className="control-row">
-                    <input type="number" min="1" max="10" value={selectionCount} onChange={(e) => setSelectionCount(Math.max(1, Math.min(10, Number(e.target.value) || 1)))} />
-                    <span style={{ fontSize: "13px", color: "#4b5563" }}>{t("selectionCountHint")}</span>
-                  </div>
-                </div>
-
-                <div className="control-group">
-                  <label>{t("drawOptionsLabel")}</label>
-                  <div className="control-row"><label><input type="checkbox" checked={allowRepeats} onChange={(e) => setAllowRepeats(e.target.checked)} />{t("allowRepeatsLabel")}</label></div>
-                  <div className="control-row"><label><input type="checkbox" checked={rtlDisplay} onChange={(e) => setRtlDisplay(e.target.checked)} />{t("rtlLabel")}</label></div>
-                </div>
-
-                <div className="control-group">
-                  <label>{t("actionsLabel")}</label>
-                  <div className="control-row">
-                    <button className="primary-btn" onClick={handleSelection} disabled={isSelecting || !currentClass}>{t("drawNowButton")}</button>
-                    <button className="ghost-btn" onClick={handleUndo} disabled={!canUndo}>{t("undoButton")}</button>
-                  </div>
-                  <div className="control-row">
-                    <button className="ghost-btn" onClick={clearHistory}>{t("clearHistoryButton")}</button>
-                  </div>
-                </div>
-
-                {shuffleNumber !== null && (
-                  <div className="control-group">
-                    <label>{t("shuffleLabel")}</label>
-                    <div className="shuffle-indicator">{shuffleNumber}</div>
-                  </div>
-                )}
-
-                {message && <div className="message" style={{ direction: messageDirection }}>{message}</div>}
+                <div className="control-group"><label>{t("selectionCountLabel")}</label><div className="control-row"><input type="number" min="1" max="10" value={selectionCount} onChange={e=>setSelectionCount(Math.max(1,Math.min(10,Number(e.target.value)||1)))} /><span style={{fontSize:"13px"}}>{t("selectionCountHint")}</span></div></div>
+                <div className="control-group"><label>{t("drawOptionsLabel")}</label><div className="control-row"><label><input type="checkbox" checked={allowRepeats} onChange={e=>setAllowRepeats(e.target.checked)} />{t("allowRepeatsLabel")}</label></div><div className="control-row"><label><input type="checkbox" checked={rtlDisplay} onChange={e=>setRtlDisplay(e.target.checked)} />{t("rtlLabel")}</label></div></div>
+                <div className="control-group"><label>{t("actionsLabel")}</label><div className="control-row"><button className="primary-btn" onClick={handleSelection} disabled={isSelecting||!currentClass}>{t("drawNowButton")}</button><button className="ghost-btn" onClick={handleUndo} disabled={!undoStack.length}>{t("undoButton")}</button></div><div className="control-row"><button className="ghost-btn" onClick={()=>updateClassById(currentClass.id, c=>({...c,history:[]}))}>{t("clearHistoryButton")}</button></div></div>
+                {shuffleNumber !== null && <div className="control-group"><label>{t("shuffleLabel")}</label><div className="shuffle-indicator">{shuffleNumber}</div></div>}
+                {message && <div className="message">{message}</div>}
               </section>
-
-              <section className="display-area">
-                <div className={`name-display count-${displayNames.length || 1}`} style={{ direction: rtlDisplay ? "rtl" : "ltr" }}>
-                  {displayNames.length ? displayNames.map((name, index) => <div key={`${name}-${index}`} className="student-name">{name}</div>) : <div className="placeholder">{t("displayPlaceholder")}</div>}
-                </div>
-              </section>
-
-              <section className="history" dir={language === "ar" ? "rtl" : "ltr"}>
-                <div className="control-row" style={{ justifyContent: "space-between" }}>
-                  <h2 style={{ margin: 0 }}>{t("historySectionTitle")}</h2>
-                  <span style={{ fontSize: "13px", color: "#64748b" }}>{t("historyLimitNote", { limit: HISTORY_LIMIT })}</span>
-                </div>
-                <ul className="history-list">
-                  {currentClass && currentClass.history.length === 0 && <li className="placeholder" style={{ fontSize: "16px" }}>{t("historyEmptyPlaceholder")}</li>}
-                  {currentClass?.history.map((entry) => (
-                    <li key={entry.id} className="history-item">
-                      <div className="history-names">{entry.names.join(" · ")}</div>
-                      <div className="history-meta" style={{ textAlign: language === "ar" ? "left" : "right" }}>
-                        <div>{formatTimestamp(language, entry.recordedAt)}</div>
-                        <div>{t("historyCountLabel")}: {entry.selectionCount} | {entry.allowRepeats ? t("historyWithRepeats") : t("historyWithoutRepeats")}</div>
-                      </div>
-                    </li>
-                  ))}
-                </ul>
-              </section>
-
-              {currentClass && (
-                <section className="student-list" dir={language === "ar" ? "rtl" : "ltr"}>
-                  <div className="control-row" style={{ justifyContent: "space-between" }}>
-                    <h2 style={{ margin: 0 }}>{t("studentsSectionTitle")}</h2>
-                    <div className="stats-row">
-                      <span>{t("statsTotal")} <strong>{currentClass.students.length}</strong></span>
-                      <span>{t("statsRemaining")} <strong>{currentClass.remaining.length}</strong></span>
-                    </div>
-                  </div>
-                  <div className="student-grid">
-                    {currentClass.students.length === 0 && <div className="placeholder" style={{ gridColumn: "1 / -1" }}>{t("studentListEmpty")}</div>}
-                    {currentClass.students.map((name) => <div key={name} className="student-chip">{name}</div>)}
-                  </div>
-                </section>
-              )}
+              <section className="display-area"><div className={`name-display count-${displayNames.length||1}`} style={{direction: rtlDisplay ? "rtl" : "ltr"}}>{displayNames.length ? displayNames.map((n, i) => <div key={i} className="student-name">{n}</div>) : <div className="placeholder">{t("displayPlaceholder")}</div>}</div></section>
+              <section className="history"><h2>{t("historySectionTitle")}</h2><ul className="history-list">{currentClass?.history.map(e => (<li key={e.id} className="history-item"><div className="history-names">{e.names.join(" · ")}</div><div className="history-meta"><div>{formatTimestamp(language, e.recordedAt)}</div><div>{t("historyCountLabel")}: {e.selectionCount}</div></div></li>))}</ul></section>
             </main>
           </div>
         );
       }
-
-      try {
-        ReactDOM.render(<App />, document.getElementById("artifact_react"));
-      } catch (error) {
-        document.getElementById("error-container").style.display = "block";
-        document.getElementById("error-container").textContent = "حدث خطأ أثناء تحميل التطبيق. تحقق من وحدة التحكم.";
-        console.error(error);
-      }
+      ReactDOM.render(<App />, document.getElementById("artifact_react"));
     </script>
   </body>
 </html>
