@@ -553,7 +553,7 @@
                   <div className="import-mode"><label><input type="radio" value="replace" checked={importMode==="replace"} onChange={e=>setImportMode(e.target.value)} />{t("importModeReplace")}</label><label><input type="radio" value="merge" checked={importMode==="merge"} onChange={e=>setImportMode(e.target.value)} />{t("importModeMerge")}</label></div>
                   <button className="ghost-btn" onClick={()=>document.getElementById("csv-input").click()}>{t("uploadCsvButton")}</button>
                   <input id="csv-input" type="file" accept=".csv" style={{display:"none"}} onChange={handleImportCSV} />
-                  <button className="ghost-btn" onClick={()=>document.getElementById("excel-input").click()}>{language === "ar" ? "رفع ملف Excel (نقط المراقبة)" : "Upload Excel (Grade Sheet)"}</button>
+                  <button className="ghost-btn" onClick={()=>document.getElementById("excel-input").click()}>{language === "ar" ? "رفع ملف Excel (مسار)" : "Upload Excel (Massar Excel)"}</button>
                   <input id="excel-input" type="file" accept=".xlsx,.xls" style={{display:"none"}} onChange={handleImportExcel} />
                   <button className="ghost-btn" onClick={handleResetPool}>{t("resetNoRepeatButton")}</button>
                 </div>
