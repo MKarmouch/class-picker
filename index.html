@@ -23,8 +23,12 @@
       /* --- ORIGINAL CSS --- */
       * { box-sizing: border-box; }
       body { margin: 0; font-family: "Segoe UI", "Noto Sans Arabic", sans-serif; background: radial-gradient(circle at top, #eef2ff, #dbeafe 35%, #c7d2fe); color: #1f2937; }
-      .app-shell { display: flex; min-height: 100vh; width: 100%; backdrop-filter: blur(6px); }
-      .sidebar { width: 320px; max-width: 100%; background: rgba(15, 23, 42, 0.92); color: #e2e8f0; padding: 24px; display: flex; flex-direction: column; gap: 24px; box-shadow: 6px 0 18px rgba(15, 23, 42, 0.3); }
+      .app-shell { display: flex; align-items: stretch; min-height: 100vh; width: 100%; backdrop-filter: blur(6px); }
+      .sidebar { flex: 0 0 auto; width: 320px; max-width: 100%; background: rgba(15, 23, 42, 0.92); color: #e2e8f0; padding: 24px; display: flex; flex-direction: column; gap: 24px; box-shadow: 6px 0 18px rgba(15, 23, 42, 0.3); overflow: hidden; transition: width 0.28s ease, padding 0.28s ease, opacity 0.22s ease, max-height 0.35s ease; }
+      .sidebar.is-collapsed { width: 0 !important; padding-left: 0; padding-right: 0; opacity: 0; pointer-events: none; box-shadow: none; }
+      .sidebar-split-toggle { flex: 0 0 36px; width: 36px; min-height: 100vh; align-self: stretch; border: none; padding: 0; margin: 0; cursor: pointer; background: linear-gradient(180deg, rgba(30, 41, 59, 0.95), rgba(15, 23, 42, 0.98)); color: #cbd5e1; font-size: 18px; font-weight: 700; display: flex; align-items: center; justify-content: center; box-shadow: 4px 0 12px rgba(15, 23, 42, 0.12); transition: background 0.2s, color 0.2s; z-index: 2; }
+      .sidebar-split-toggle:hover { background: rgba(51, 65, 85, 0.95); color: #fff; }
+      .sidebar-split-toggle:focus-visible { outline: 2px solid #60a5fa; outline-offset: -2px; }
       .sidebar h1 { margin: 0; font-size: 24px; font-weight: 700; display: flex; align-items: center; gap: 10px; }
       .sidebar h1 span { display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 10px; background: linear-gradient(135deg, #60a5fa, #c084fc); color: white; font-weight: 800; }
       .language-toggle, .add-class-card, .import-card, .manual-card { background: rgba(30, 41, 59, 0.72); border-radius: 18px; padding: 18px; box-shadow: inset 0 0 0 1px rgba(148, 163, 184, 0.12); display: flex; flex-direction: column; gap: 12px; }
@@ -71,7 +75,12 @@
       .stats-row { display: flex; flex-wrap: wrap; gap: 16px; font-size: 14px; color: rgba(30, 41, 59, 0.75); }
       .stats-row span { display: inline-flex; align-items: center; gap: 6px; padding: 6px 10px; border-radius: 10px; background: rgba(96, 165, 250, 0.2); }
       .empty-state { font-size: 15px; color: rgba(226, 232, 240, 0.75); text-align: center; }
-      @media (max-width: 1080px) { .app-shell { flex-direction: column; } .sidebar { width: 100%; border-bottom-left-radius: 32px; border-bottom-right-radius: 32px; box-shadow: 0 18px 36px rgba(15, 23, 42, 0.25); } }
+      @media (max-width: 1080px) {
+        .app-shell { flex-direction: column; }
+        .sidebar { width: 100%; border-bottom-left-radius: 32px; border-bottom-right-radius: 32px; box-shadow: 0 18px 36px rgba(15, 23, 42, 0.25); max-height: 6000px; }
+        .sidebar.is-collapsed { width: 100% !important; max-height: 0 !important; padding-top: 0 !important; padding-bottom: 0 !important; margin: 0 !important; border-radius: 0 !important; opacity: 0; overflow: hidden !important; }
+        .sidebar-split-toggle { width: 100%; min-height: 44px; flex: 0 0 auto; box-shadow: 0 2px 10px rgba(15, 23, 42, 0.12); }
+      }
       @media (max-width: 680px) { .main { padding: 24px; } .controls { grid-template-columns: 1fr; } .student-name { min-width: 85%; } }
 
       /* --- ENHANCED AUTHENTICATION STYLING --- */
@@ -228,6 +237,8 @@
           authGoogleBtn: "تسجيل الدخول باستخدام جوجل",
           authOr: "أو",
           authSignout: "تسجيل الخروج",
+          sidebarCollapse: "طيّ اللوحة الجانبية",
+          sidebarExpand: "إظهار اللوحة الجانبية",
         },
         en: {
           appTitle: "Student Picker Tool",
@@ -317,6 +328,8 @@
           authGoogleBtn: "Continue with Google",
           authOr: "OR",
           authSignout: "Sign Out",
+          sidebarCollapse: "Hide side panel",
+          sidebarExpand: "Show side panel",
         },
       };
 
@@ -485,8 +498,10 @@
         const [bulkNames, setBulkNames] = useState("");
         const [rtlDisplay, setRtlDisplay] = useState(true);
         const [undoStack, setUndoStack] = useState([]);
+        const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
         const t = (key, params) => translate(language, key, params);
+        const isRtl = language === "ar";
 
         useEffect(() => {
           const unsubscribe = auth.onAuthStateChanged((currentUser) => {
@@ -660,7 +675,7 @@
 
         return (
           <div className="app-shell">
-            <aside className="sidebar" dir={language === "ar" ? "rtl" : "ltr"}>
+            <aside className={`sidebar ${sidebarCollapsed ? "is-collapsed" : ""}`} dir={isRtl ? "rtl" : "ltr"} aria-hidden={sidebarCollapsed}>
               <h1><span>★</span>{t("appTitle")}</h1>
               <div className="language-toggle">
                 <div style={{display:'flex', justifyContent:'space-between', alignItems:'center'}}>
@@ -699,7 +714,17 @@
                 <div className="manual-card"><h2>{t("manualSectionTitle")}</h2><textarea placeholder={t("manualPlaceholder")} value={bulkNames} onChange={e=>setBulkNames(e.target.value)} /><button className="ghost-btn" onClick={handleAddBulkNames}>{t("addNamesButton")}</button></div>
               </>}
             </aside>
-            <main className="main" dir={language === "ar" ? "rtl" : "ltr"}>
+            <button
+              type="button"
+              className="sidebar-split-toggle"
+              onClick={() => setSidebarCollapsed((c) => !c)}
+              title={sidebarCollapsed ? t("sidebarExpand") : t("sidebarCollapse")}
+              aria-label={sidebarCollapsed ? t("sidebarExpand") : t("sidebarCollapse")}
+              aria-expanded={!sidebarCollapsed}
+            >
+              {sidebarCollapsed ? (isRtl ? "‹" : "›") : (isRtl ? "›" : "‹")}
+            </button>
+            <main className="main" dir={isRtl ? "rtl" : "ltr"}>
               <section className="controls">
                 <div className="control-group"><label>{t("selectionCountLabel")}</label><div className="control-row"><input type="number" min="1" max="10" value={selectionCount} onChange={e=>setSelectionCount(Math.max(1,Math.min(10,Number(e.target.value)||1)))} /><span style={{fontSize:"13px"}}>{t("selectionCountHint")}</span></div></div>
                 <div className="control-group"><label>{t("drawOptionsLabel")}</label><div className="control-row"><label><input type="checkbox" checked={allowRepeats} onChange={e=>setAllowRepeats(e.target.checked)} />{t("allowRepeatsLabel")}</label></div><div className="control-row"><label><input type="checkbox" checked={rtlDisplay} onChange={e=>setRtlDisplay(e.target.checked)} />{t("rtlLabel")}</label></div></div>
