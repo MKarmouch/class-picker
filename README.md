@@ -45,6 +45,6 @@ This tool respects teacher privacy. Your student lists are stored in a private F
 *   **Frontend:** React.js, Tailwind CSS
 *   **Backend:** Firebase Authentication & Firestore Database
 *   **Hosting:** GitHub Pages
-*   **Domain:** [picker.karmouch.me](https://tools.karmouch.me)
+*   **Domain:** [picker.karmouch.me](https://picker.karmouch.me)
 
 **Developed by:** Mehdi Karmouch
